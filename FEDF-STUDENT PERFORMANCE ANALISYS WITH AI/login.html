@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Login — EduTrack</title>
+<meta name="description" content="Login to EduTrack — Student Performance Analysis. Access your dashboard with your college or teacher email.">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/common.css">
+<link rel="stylesheet" href="css/auth.css">
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a class="nav-logo" href="index.html">
+    <span class="nav-logo-dot"></span>
+    EduTrack
+  </a>
+  <div class="nav-actions">
+    <a class="nav-cta-outline" href="login.html">Login</a>
+    <a class="nav-cta" href="register.html">Register</a>
+  </div>
+</nav>
+
+<!-- AUTH PAGE -->
+<div class="auth-page">
+  <!-- Background Effects -->
+  <div class="auth-bg">
+    <div class="auth-bg-orb"></div>
+    <div class="auth-bg-orb"></div>
+    <div class="auth-bg-orb"></div>
+    <div class="auth-grid-bg"></div>
+  </div>
+
+  <!-- Login Card -->
+  <div class="auth-card">
+    <div class="auth-card-header">
+      <a class="auth-card-logo" href="index.html">
+        <span class="nav-logo-dot"></span>
+        EduTrack
+      </a>
+      <h2>Welcome back</h2>
+      <p>Sign in to access your dashboard</p>
+    </div>
+
+    <!-- Message Area -->
+    <div class="auth-message" id="authMessage">
+      <span id="messageIcon"></span>
+      <span id="messageText"></span>
+    </div>
+
+    <!-- Login Form -->
+    <form class="auth-form" id="loginForm" onsubmit="handleLogin(event)">
+      <div class="form-field">
+        <label for="loginEmail">Email Address</label>
+        <input 
+          type="email" 
+          id="loginEmail" 
+          placeholder="name@klh.edu.in or name@teacher.com" 
+          required
+          autocomplete="email"
+          oninput="detectEmailRole(this.value)"
+        >
+        <div class="role-indicator" id="roleIndicator">
+          <span class="role-icon" id="roleIcon"></span>
+          <span id="roleLabel"></span>
+        </div>
+      </div>
+
+      <div class="form-field">
+        <label for="loginPassword">Password</label>
+        <input 
+          type="password" 
+          id="loginPassword" 
+          placeholder="Enter your password" 
+          required
+          autocomplete="current-password"
+        >
+      </div>
+
+      <button type="submit" class="auth-submit" id="submitBtn">
+        Sign In
+      </button>
+    </form>
+
+    <div class="auth-divider">
+      <span>or</span>
+    </div>
+
+    <div class="auth-footer">
+      Don't have an account? <a href="register.html">Create one</a>
+    </div>
+
+    <!-- Demo Credentials -->
+    <div style="margin-top:1.25rem; padding:14px; background:var(--bg3); border-radius:10px; font-size:0.75rem; color:var(--muted); line-height:1.8">
+      <div style="font-weight:600; color:var(--text); margin-bottom:4px; text-transform:uppercase; letter-spacing:.06em; font-size:0.68rem">Demo Accounts</div>
+      <div>🎓 Student: <span style="font-family:var(--mono); color:var(--accent)">aarav@klh.edu.in</span> / <span style="font-family:var(--mono)">student123</span></div>
+      <div>👩‍🏫 Teacher: <span style="font-family:var(--mono); color:var(--green)">reddy@teacher.com</span> / <span style="font-family:var(--mono)">teacher123</span></div>
+    </div>
+  </div>
+</div>
+
+<script src="js/auth.js"></script>
+<script>
+  // If already logged in, redirect to dashboard
+  (function() {
+    const user = getCurrentUser();
+    if (user) {
+      redirectToDashboard(user);
+    }
+  })();
+
+  // ── Detect role from email ──
+  function detectEmailRole(email) {
+    const indicator = document.getElementById('roleIndicator');
+    const roleIcon = document.getElementById('roleIcon');
+    const roleLabel = document.getElementById('roleLabel');
+    const role = detectRole(email);
+
+    if (role === 'student') {
+      indicator.className = 'role-indicator visible student';
+      roleIcon.textContent = '🎓';
+      roleLabel.textContent = 'Student Account';
+    } else if (role === 'teacher') {
+      indicator.className = 'role-indicator visible teacher';
+      roleIcon.textContent = '👩‍🏫';
+      roleLabel.textContent = 'Teacher Account';
+    } else {
+      indicator.className = 'role-indicator';
+    }
+  }
+
+  // ── Handle Login ──
+  function handleLogin(e) {
+    e.preventDefault();
+    
+    const email = document.getElementById('loginEmail').value;
+    const password = document.getElementById('loginPassword').value;
+    const messageEl = document.getElementById('authMessage');
+    const messageText = document.getElementById('messageText');
+    const messageIcon = document.getElementById('messageIcon');
+
+    const result = login(email, password);
+
+    if (result.success) {
+      messageEl.className = 'auth-message show success';
+      messageIcon.textContent = '✓';
+      messageText.textContent = result.message + ' Redirecting...';
+      
+      document.getElementById('submitBtn').disabled = true;
+      document.getElementById('submitBtn').textContent = 'Redirecting...';
+
+      setTimeout(() => {
+        redirectToDashboard(result.user);
+      }, 800);
+    } else {
+      messageEl.className = 'auth-message show error';
+      messageIcon.textContent = '✕';
+      messageText.textContent = result.message;
+      
+      // Shake animation
+      const card = document.querySelector('.auth-card');
+      card.style.animation = 'none';
+      card.offsetHeight; // trigger reflow
+      card.style.animation = 'shake 0.5s ease';
+    }
+  }
+</script>
+
+<style>
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20% { transform: translateX(-8px); }
+    40% { transform: translateX(8px); }
+    60% { transform: translateX(-4px); }
+    80% { transform: translateX(4px); }
+  }
+</style>
+
+</body>
+</html>

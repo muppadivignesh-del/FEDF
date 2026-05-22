@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Student Dashboard — EduTrack</title>
+<meta name="description" content="View your personal academic performance, scores, attendance, and progress on EduTrack Student Dashboard.">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<link rel="stylesheet" href="css/common.css">
+<link rel="stylesheet" href="css/student.css">
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a class="nav-logo" href="index.html">
+    <span class="nav-logo-dot"></span>
+    EduTrack
+  </a>
+  <div class="user-menu">
+    <div class="user-avatar" id="navAvatar"></div>
+    <span class="user-name" id="navName"></span>
+    <button class="btn-logout" id="logoutBtn">Logout</button>
+  </div>
+</nav>
+
+<!-- DASHBOARD -->
+<div class="dashboard-container">
+  <!-- Sidebar -->
+  <aside class="dash-sidebar">
+    <div class="sidebar-profile">
+      <div class="sidebar-avatar" id="sidebarAvatar"></div>
+      <div class="sidebar-name" id="sidebarName"></div>
+      <div class="sidebar-email" id="sidebarEmail"></div>
+      <div class="sidebar-role-badge">🎓 Student</div>
+    </div>
+
+    <h4>Navigation</h4>
+    <div class="dash-nav-item active" data-section="overviewSection">
+      <span class="icon">📊</span> Overview
+    </div>
+    <div class="dash-nav-item" data-section="subjectsSection">
+      <span class="icon">📚</span> Subjects
+    </div>
+    <div class="dash-nav-item" data-section="performanceSection">
+      <span class="icon">📈</span> Performance
+    </div>
+    <div class="dash-nav-item" data-section="infoSection">
+      <span class="icon">👤</span> My Info
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="dash-main">
+    <!-- Welcome Banner -->
+    <div class="welcome-banner" id="overviewSection">
+      <div class="welcome-text">
+        <h2>Welcome back, <span id="welcomeName"></span> 👋</h2>
+        <p>Here's your personal academic performance overview. Keep up the great work!</p>
+      </div>
+      <div class="welcome-date" id="currentDate"></div>
+    </div>
+
+    <!-- KPI Cards -->
+    <div class="kpi-row">
+      <div class="kpi">
+        <div class="kpi-label">Overall Marks</div>
+        <div class="kpi-val" id="kpiMarks">—</div>
+        <div class="kpi-trend" id="trendMarks"></div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-label">Attendance</div>
+        <div class="kpi-val" id="kpiAttend">—</div>
+        <div class="kpi-trend" id="trendAttend"></div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-label">Assignments</div>
+        <div class="kpi-val" id="kpiAssign">—</div>
+        <div class="kpi-trend" id="trendAssign"></div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-label">Grade</div>
+        <div class="kpi-val" id="kpiGrade">—</div>
+        <div class="kpi-trend kpi-green">Current standing</div>
+      </div>
+    </div>
+
+    <!-- Subject Cards -->
+    <div id="subjectsSection">
+      <div class="info-card">
+        <div class="info-card-title">📚 Subject-wise Scores</div>
+        <div class="subjects-grid" id="subjectsGrid"></div>
+      </div>
+    </div>
+
+    <!-- Charts Section -->
+    <div id="performanceSection">
+      <div class="charts-row">
+        <div class="chart-box">
+          <div class="chart-box-title">Your Marks vs Class Average</div>
+          <div class="chart-wrap" style="height:220px"><canvas id="subjectBarChart"></canvas></div>
+        </div>
+        <div class="chart-box">
+          <div class="chart-box-title">Performance Trend — 6 Months</div>
+          <div class="chart-wrap" style="height:220px"><canvas id="trendLineChart"></canvas></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Strengths & Weaknesses -->
+    <div class="sw-grid">
+      <div class="sw-card strengths">
+        <h3>💪 Strengths</h3>
+        <div id="strengthsList"></div>
+      </div>
+      <div class="sw-card weaknesses">
+        <h3>📌 Areas to Improve</h3>
+        <div id="weaknessesList"></div>
+      </div>
+    </div>
+
+    <!-- Personal Info -->
+    <div id="infoSection">
+      <div class="info-card">
+        <div class="info-card-title">👤 Personal Information</div>
+        <div class="info-grid">
+          <div class="info-item">
+            <span class="info-label">Full Name</span>
+            <span class="info-value" id="infoName"></span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Email</span>
+            <span class="info-value" id="infoEmail"></span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Role</span>
+            <span class="info-value" id="infoRole"></span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Class</span>
+            <span class="info-value" id="infoClass"></span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Member Since</span>
+            <span class="info-value" id="infoJoined"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- Footer -->
+<footer style="margin-left:260px">
+  <p>© 2026 <span>EduTrack</span> — Student Performance Analysis System. Built for educators, by educators.</p>
+</footer>
+
+<script src="js/auth.js"></script>
+<script src="js/student.js"></script>
+<script>
+  // Populate nav avatar
+  const user = getCurrentUser();
+  if (user) {
+    document.getElementById('navAvatar').textContent = user.initials;
+    document.getElementById('navName').textContent = user.name;
+  }
+</script>
+
+</body>
+</html>

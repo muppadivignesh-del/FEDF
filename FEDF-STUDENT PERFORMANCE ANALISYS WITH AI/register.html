@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Register — EduTrack</title>
+<meta name="description" content="Create your EduTrack account. Register with your college email (@klh.edu.in) or teacher email (@teacher.com) to get started.">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/common.css">
+<link rel="stylesheet" href="css/auth.css">
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a class="nav-logo" href="index.html">
+    <span class="nav-logo-dot"></span>
+    EduTrack
+  </a>
+  <div class="nav-actions">
+    <a class="nav-cta-outline" href="login.html">Login</a>
+    <a class="nav-cta" href="register.html">Register</a>
+  </div>
+</nav>
+
+<!-- AUTH PAGE -->
+<div class="auth-page">
+  <!-- Background Effects -->
+  <div class="auth-bg">
+    <div class="auth-bg-orb"></div>
+    <div class="auth-bg-orb"></div>
+    <div class="auth-bg-orb"></div>
+    <div class="auth-grid-bg"></div>
+  </div>
+
+  <!-- Register Card -->
+  <div class="auth-card">
+    <div class="auth-card-header">
+      <a class="auth-card-logo" href="index.html">
+        <span class="nav-logo-dot"></span>
+        EduTrack
+      </a>
+      <h2>Create your account</h2>
+      <p>Get started with your college or teacher email</p>
+    </div>
+
+    <!-- Message Area -->
+    <div class="auth-message" id="authMessage">
+      <span id="messageIcon"></span>
+      <span id="messageText"></span>
+    </div>
+
+    <!-- Register Form -->
+    <form class="auth-form" id="registerForm" onsubmit="handleRegister(event)">
+      <div class="form-field">
+        <label for="regName">Full Name</label>
+        <input 
+          type="text" 
+          id="regName" 
+          placeholder="e.g. Aarav Sharma" 
+          required
+          autocomplete="name"
+        >
+      </div>
+
+      <div class="form-field">
+        <label for="regEmail">Email Address</label>
+        <input 
+          type="email" 
+          id="regEmail" 
+          placeholder="name@klh.edu.in or name@teacher.com" 
+          required
+          autocomplete="email"
+          oninput="handleEmailInput(this.value)"
+        >
+        <div class="role-indicator" id="roleIndicator">
+          <span class="role-icon" id="roleIcon"></span>
+          <span id="roleLabel"></span>
+        </div>
+      </div>
+
+      <div class="form-field">
+        <label for="regPassword">Password</label>
+        <input 
+          type="password" 
+          id="regPassword" 
+          placeholder="At least 6 characters" 
+          required
+          autocomplete="new-password"
+          oninput="updatePasswordStrength(this.value)"
+        >
+        <div class="password-strength" id="passwordStrength">
+          <div class="strength-bar" id="str1"></div>
+          <div class="strength-bar" id="str2"></div>
+          <div class="strength-bar" id="str3"></div>
+        </div>
+        <div class="strength-label" id="strengthLabel" style="color:var(--muted)"></div>
+      </div>
+
+      <div class="form-field">
+        <label for="regConfirmPassword">Confirm Password</label>
+        <input 
+          type="password" 
+          id="regConfirmPassword" 
+          placeholder="Re-enter your password" 
+          required
+          autocomplete="new-password"
+          oninput="checkPasswordMatch()"
+        >
+      </div>
+
+      <button type="submit" class="auth-submit" id="submitBtn">
+        Create Account
+      </button>
+    </form>
+
+    <div class="auth-divider">
+      <span>or</span>
+    </div>
+
+    <div class="auth-footer">
+      Already have an account? <a href="login.html">Sign in</a>
+    </div>
+
+    <!-- Domain Help -->
+    <div style="margin-top:1.25rem; padding:14px; background:var(--bg3); border-radius:10px; font-size:0.75rem; color:var(--muted); line-height:1.8">
+      <div style="font-weight:600; color:var(--text); margin-bottom:4px; text-transform:uppercase; letter-spacing:.06em; font-size:0.68rem">Accepted Email Domains</div>
+      <div>🎓 Students: <span style="font-family:var(--mono); color:var(--accent)">@klh.edu.in</span></div>
+      <div>👩‍🏫 Teachers: <span style="font-family:var(--mono); color:var(--green)">@teacher.com</span></div>
+    </div>
+  </div>
+</div>
+
+<script src="js/auth.js"></script>
+<script>
+  // If already logged in, redirect to dashboard
+  (function() {
+    const user = getCurrentUser();
+    if (user) {
+      redirectToDashboard(user);
+    }
+  })();
+
+  // ── Detect role from email ──
+  function handleEmailInput(email) {
+    const indicator = document.getElementById('roleIndicator');
+    const roleIcon = document.getElementById('roleIcon');
+    const roleLabel = document.getElementById('roleLabel');
+    const emailInput = document.getElementById('regEmail');
+    const role = detectRole(email);
+
+    if (role === 'student') {
+      indicator.className = 'role-indicator visible student';
+      roleIcon.textContent = '🎓';
+      roleLabel.textContent = 'Student Account — @klh.edu.in';
+      emailInput.classList.remove('error');
+      emailInput.classList.add('success');
+    } else if (role === 'teacher') {
+      indicator.className = 'role-indicator visible teacher';
+      roleIcon.textContent = '👩‍🏫';
+      roleLabel.textContent = 'Teacher Account — @teacher.com';
+      emailInput.classList.remove('error');
+      emailInput.classList.add('success');
+    } else {
+      indicator.className = 'role-indicator';
+      emailInput.classList.remove('success');
+      if (email.includes('@') && email.length > 3) {
+        emailInput.classList.add('error');
+      } else {
+        emailInput.classList.remove('error');
+      }
+    }
+  }
+
+  // ── Password Strength ──
+  function updatePasswordStrength(password) {
+    const strength = getPasswordStrength(password);
+    const bars = [
+      document.getElementById('str1'),
+      document.getElementById('str2'),
+      document.getElementById('str3'),
+    ];
+    const label = document.getElementById('strengthLabel');
+
+    bars.forEach((bar, i) => {
+      bar.className = 'strength-bar';
+      if (i < strength.level) {
+        bar.classList.add(strength.color);
+      }
+    });
+
+    label.textContent = strength.label;
+    const colors = { weak: 'var(--red)', medium: 'var(--amber)', strong: 'var(--green)' };
+    label.style.color = colors[strength.color] || 'var(--muted)';
+  }
+
+  // ── Password Match Check ──
+  function checkPasswordMatch() {
+    const password = document.getElementById('regPassword').value;
+    const confirm = document.getElementById('regConfirmPassword').value;
+    const confirmInput = document.getElementById('regConfirmPassword');
+
+    if (confirm.length === 0) {
+      confirmInput.classList.remove('error', 'success');
+    } else if (password === confirm) {
+      confirmInput.classList.remove('error');
+      confirmInput.classList.add('success');
+    } else {
+      confirmInput.classList.remove('success');
+      confirmInput.classList.add('error');
+    }
+  }
+
+  // ── Handle Register ──
+  function handleRegister(e) {
+    e.preventDefault();
+
+    const name = document.getElementById('regName').value;
+    const email = document.getElementById('regEmail').value;
+    const password = document.getElementById('regPassword').value;
+    const confirmPassword = document.getElementById('regConfirmPassword').value;
+    const messageEl = document.getElementById('authMessage');
+    const messageText = document.getElementById('messageText');
+    const messageIcon = document.getElementById('messageIcon');
+
+    const result = register(name, email, password, confirmPassword);
+
+    if (result.success) {
+      messageEl.className = 'auth-message show success';
+      messageIcon.textContent = '✓';
+      messageText.textContent = result.message + ' Redirecting to dashboard...';
+
+      document.getElementById('submitBtn').disabled = true;
+      document.getElementById('submitBtn').textContent = 'Redirecting...';
+
+      setTimeout(() => {
+        redirectToDashboard(result.user);
+      }, 800);
+    } else {
+      messageEl.className = 'auth-message show error';
+      messageIcon.textContent = '✕';
+      messageText.textContent = result.message;
+
+      // Shake animation
+      const card = document.querySelector('.auth-card');
+      card.style.animation = 'none';
+      card.offsetHeight;
+      card.style.animation = 'shake 0.5s ease';
+    }
+  }
+</script>
+
+<style>
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20% { transform: translateX(-8px); }
+    40% { transform: translateX(8px); }
+    60% { transform: translateX(-4px); }
+    80% { transform: translateX(4px); }
+  }
+</style>
+
+</body>
+</html>

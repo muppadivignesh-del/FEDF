@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Teacher Dashboard — EduTrack</title>
+<meta name="description" content="Teacher Analytics Dashboard — Full class performance analysis, student tracking, and academic insights on EduTrack.">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<link rel="stylesheet" href="css/common.css">
+<link rel="stylesheet" href="css/teacher.css">
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a class="nav-logo" href="index.html">
+    <span class="nav-logo-dot"></span>
+    EduTrack
+  </a>
+  <div class="user-menu">
+    <div class="user-avatar" id="navAvatar" style="background:rgba(34,211,160,0.15);color:var(--green);border-color:rgba(34,211,160,0.3)"></div>
+    <span class="user-name" id="navName"></span>
+    <button class="btn-logout" id="logoutBtn">Logout</button>
+  </div>
+</nav>
+
+<!-- DASHBOARD -->
+<div class="dashboard-container">
+  <!-- Sidebar -->
+  <aside class="dash-sidebar">
+    <div class="sidebar-profile">
+      <div class="sidebar-avatar" id="sidebarAvatar"></div>
+      <div class="sidebar-name" id="sidebarName"></div>
+      <div class="sidebar-email" id="sidebarEmail"></div>
+      <div class="sidebar-role-badge">👩‍🏫 Teacher</div>
+    </div>
+
+    <h4>Navigation</h4>
+    <div class="dash-nav-item active" data-section="overviewSection">
+      <span class="icon">📊</span> Overview
+    </div>
+    <div class="dash-nav-item" data-section="chartsSection">
+      <span class="icon">📈</span> Analytics
+    </div>
+    <div class="dash-nav-item" data-section="studentsSection">
+      <span class="icon">👥</span> Students
+    </div>
+    <div class="dash-nav-item" data-section="radarSection">
+      <span class="icon">🎯</span> Comparison
+    </div>
+
+    <br>
+    <h4>Class Info</h4>
+    <div class="class-info">
+      <strong>Class:</strong> X-B<br>
+      <strong>Year:</strong> 2025–26<br>
+      <strong>Students:</strong> 12<br>
+      <strong>Term:</strong> 2nd Semester
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="dash-main">
+    <!-- Welcome Banner -->
+    <div class="welcome-banner" id="overviewSection">
+      <div class="welcome-text">
+        <h2>Welcome, <span id="welcomeName"></span> 👩‍🏫</h2>
+        <p>Here's the complete performance analysis for Class X-B. All student data at a glance.</p>
+      </div>
+      <div class="welcome-date" id="currentDate"></div>
+    </div>
+
+    <!-- KPI Cards -->
+    <div class="kpi-row">
+      <div class="kpi">
+        <div class="kpi-label">Class Average</div>
+        <div class="kpi-val" id="kpiAvgMarks">—</div>
+        <div class="kpi-trend kpi-green">↑ 3.2% vs last term</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-label">Avg Attendance</div>
+        <div class="kpi-val" id="kpiAvgAttend">—</div>
+        <div class="kpi-trend kpi-amber">— steady</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-label">Assignments Done</div>
+        <div class="kpi-val" id="kpiAvgAssign">—</div>
+        <div class="kpi-trend kpi-green">↑ 5% this month</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-label">At Risk</div>
+        <div class="kpi-val kpi-red" id="kpiAtRisk">—</div>
+        <div class="kpi-trend kpi-red">↑ needs attention</div>
+      </div>
+    </div>
+
+    <!-- Charts -->
+    <div id="chartsSection">
+      <div class="charts-row">
+        <div class="chart-box">
+          <div class="chart-box-title">Subject-wise Class Average</div>
+          <div class="chart-wrap" style="height:200px"><canvas id="barChart"></canvas></div>
+        </div>
+        <div class="chart-box">
+          <div class="chart-box-title">Performance Distribution</div>
+          <div class="chart-wrap" style="height:200px"><canvas id="doughnutChart"></canvas></div>
+        </div>
+      </div>
+      <div class="chart-box" style="margin-top:14px">
+        <div class="chart-box-title">Marks Trend — Last 6 Months</div>
+        <div class="chart-wrap" style="height:180px"><canvas id="lineChart"></canvas></div>
+      </div>
+    </div>
+
+    <!-- Student Table -->
+    <div class="table-section" id="studentsSection">
+      <div class="table-section-title">
+        👥 All Students — Class X-B
+        <span style="margin-left:auto;font-size:0.75rem;font-weight:400;color:var(--muted)" id="studentCount"></span>
+      </div>
+      <div class="table-controls">
+        <div class="search-box">
+          <span style="color:var(--muted)">🔍</span>
+          <input type="text" id="searchInput" placeholder="Search student...">
+        </div>
+        <button class="filter-btn active" data-filter="all">All</button>
+        <button class="filter-btn" data-filter="excellent">Excellent</button>
+        <button class="filter-btn" data-filter="good">On Track</button>
+        <button class="filter-btn" data-filter="at-risk">At Risk</button>
+      </div>
+      <div class="tbl-wrap">
+        <table id="studentTable">
+          <thead>
+            <tr>
+              <th>Student</th>
+              <th>Marks %</th>
+              <th>Attendance</th>
+              <th>Assignments</th>
+              <th>Grade</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Radar Chart -->
+    <div id="radarSection">
+      <div class="chart-box">
+        <div class="chart-box-title">🎯 Class Average vs Top Student — Subject Comparison</div>
+        <div class="chart-wrap" style="height:280px;max-width:400px;margin:0 auto">
+          <canvas id="radarChart"></canvas>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- Student Detail Modal -->
+<div class="student-detail-overlay" id="detailOverlay">
+  <div class="student-detail-card">
+    <button class="detail-close" id="detailClose">✕</button>
+    <div class="detail-header">
+      <div class="detail-avatar" id="detailAvatar"></div>
+      <div class="detail-info">
+        <h3 id="detailName"></h3>
+        <p id="detailStatus"></p>
+      </div>
+    </div>
+    <div class="detail-scores">
+      <div class="detail-score">
+        <div class="score-label">Marks</div>
+        <div class="score-value" id="detailMarks"></div>
+      </div>
+      <div class="detail-score">
+        <div class="score-label">Attendance</div>
+        <div class="score-value" id="detailAttend"></div>
+      </div>
+      <div class="detail-score">
+        <div class="score-label">Assignments</div>
+        <div class="score-value" id="detailAssign"></div>
+      </div>
+    </div>
+    <div style="margin-top:1rem">
+      <div class="chart-box-title">Subject-wise Scores</div>
+      <div id="detailSubjects"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Footer -->
+<footer style="margin-left:260px">
+  <p>© 2026 <span>EduTrack</span> — Student Performance Analysis System. Built for educators, by educators.</p>
+</footer>
+
+<script src="js/auth.js"></script>
+<script src="js/teacher.js"></script>
+<script>
+  // Populate nav avatar
+  const user = getCurrentUser();
+  if (user) {
+    document.getElementById('navAvatar').textContent = user.initials;
+    document.getElementById('navName').textContent = user.name;
+  }
+</script>
+
+</body>
+</html>
